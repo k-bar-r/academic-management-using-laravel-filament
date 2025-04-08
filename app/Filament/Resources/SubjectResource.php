@@ -43,10 +43,10 @@ class SubjectResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('Id')->sortable(),
-                TextColumn::make('name')->label('Subject Name')->searchable()->sortable(),
-                TextColumn::make('code')->label('Subject Code')->searchable()->sortable(),
-                TextColumn::make('created_at')->label('Created At')->dateTime()
+                TextColumn::make('id')->label('Id')->sortable()->hidden(),
+                TextColumn::make('name')->label('Mata Pelajaran')->searchable()->sortable(),
+                TextColumn::make('code')->label('Kode Mata pelajaran')->searchable()->sortable(),
+                TextColumn::make('created_at')->label('Created At')->dateTime()->hidden()
             ])
             ->filters([
                 //
@@ -70,8 +70,8 @@ class SubjectResource extends Resource
                 TextEntry::make('name')->label('Subject Name'),
                 TextEntry::make('code')->label('Subject Code'),
                 TextEntry::make('description')->label('Subject Description'),
-                TextEntry::make('created_at')->label('Created At')->dateTime(),
-                TextEntry::make('updated_at')->label('Updated At')->dateTime()
+                TextEntry::make('created_at')->label('Created At')->dateTime()->hidden(),
+                TextEntry::make('updated_at')->label('Updated At')->dateTime()->hidden(),
             ]);
     }
     public static function getRelations(): array

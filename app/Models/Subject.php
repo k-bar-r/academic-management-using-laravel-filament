@@ -20,4 +20,8 @@ class Subject extends Model
     /**
      * Get the classes associated with the subject.
      */
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class);
+    }
 }

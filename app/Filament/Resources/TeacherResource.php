@@ -64,7 +64,14 @@ class TeacherResource extends Resource
                     TextInput::make('emergency_contact_phone')->label('Emergency Contact Phone')->required(),
                 ])->columns(3),
                 Section::make('Professional Information')->schema([
-                    Select::make('subject_id')->label('Subject')->relationship('subject','name')->searchable()->preload()->native(0)->required(),
+                    Select::make('subjects')
+                        ->label('Subjects')
+                        ->relationship('subjects', 'name')
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+
                     DatePicker::make('joining_date')->label('Joining Date')->required()->native(false),
                     TextInput::make('experience')->label('Experience (Years)')->numeric()->required(),
                     Select::make('employment_status')->label('Employment Status')->options([
@@ -86,14 +93,21 @@ class TeacherResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('Id'),
                 TextColumn::make('first_name')->label('Name')->searchable(),
-                TextColumn::make('Age')->getStateUsing(function (Model $teacher) 
-                {  return Carbon::parse($teacher->date_of_birth)->age  ; }),
-                TextColumn::make('subject.name')->label('Subject')->searchable(),
-                TextColumn::make('phone')->label('Phone')->prefix('+91 ')->searchable(),
+                TextColumn::make('Age')->getStateUsing(function (Model $teacher) {
+                    return Carbon::parse($teacher->date_of_birth)->age;
+                }),
+                TextColumn::make('subjects.name')
+                    ->label('Subjects')
+                    ->badge()
+                    ->separator(', ')
+                    ->searchable(),
+                TextColumn::make('phone')->label('Phone')->prefix('+62 ')->searchable(),
             ])
             ->filters([
-                SelectFilter::make('subject')->multiple()->preload()
-                ->relationship('subject', 'name')
+                SelectFilter::make('subjects')
+                    ->relationship('subjects', 'name')
+                    ->multiple()
+                    ->preload()
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -110,41 +124,49 @@ class TeacherResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
-        ->schema([
-            InfoSection::make('Personal Details')->schema([
-                TextEntry::make('first_name')->label('First Name'),
-                TextEntry::make('last_name')->label('Last Name'),
-                TextEntry::make('email')->label('Email'),
-                TextEntry::make('date_of_birth')->label('Date of Birth')->date(),
-                TextEntry::make('gender')->label('Gender'),
-                TextEntry::make('address')->label('Address'),
-                TextEntry::make('city')->label('City'),
-                TextEntry::make('state')->label('State'),
-                TextEntry::make('zip')->label('Zip Code'),
-            ])->columns(3),
-            InfoSection::make('Contact Details')->schema([
-                TextEntry::make('phone')->label('Phone Number'),
-                TextEntry::make('emergency_contact_name')->label('Emergency Contact Name'),
-                TextEntry::make('emergency_contact_phone')->label('Emergency Contact Phone'),
-            ])->columns(3),
-            InfoSection::make('Professional Information')->schema([
-                TextEntry::make('subject_id')->label('Subject')
-                  ->getStateUsing(function (Model $teacher) 
-                  {     return Subject::find($teacher->subject_id)->name ?? 'Unknown Subject'; }),
-                TextEntry::make('joining_date')->label('Joining Date')->date(),
-                TextEntry::make('experience')->label('Experience (Years)'),
-                TextEntry::make('employment_status')->label('Employment Status'),   
-                TextEntry::make('qualification_degree')->label('Degree Details')
-                ->getStateUsing(function (Model $teacher)  { return $teacher->qualification_degree ?  $teacher->qualification_degree : 'No Degree Details'; } ),    
-                TextEntry::make('responsibilities')->label('Responsibilities')
-                ->getStateUsing(function (Model $teacher)  { return $teacher->responsibilities ?  $teacher->responsibilities : 'No Responsibility Details'; } ),    
+            ->schema([
+                InfoSection::make('Personal Details')->schema([
+                    TextEntry::make('first_name')->label('First Name'),
+                    TextEntry::make('last_name')->label('Last Name'),
+                    TextEntry::make('email')->label('Email'),
+                    TextEntry::make('date_of_birth')->label('Date of Birth')->date(),
+                    TextEntry::make('gender')->label('Gender'),
+                    TextEntry::make('address')->label('Address'),
+                    TextEntry::make('city')->label('City'),
+                    TextEntry::make('state')->label('State'),
+                    TextEntry::make('zip')->label('Zip Code'),
+                ])->columns(3),
+                InfoSection::make('Contact Details')->schema([
+                    TextEntry::make('phone')->label('Phone Number'),
+                    TextEntry::make('emergency_contact_name')->label('Emergency Contact Name'),
+                    TextEntry::make('emergency_contact_phone')->label('Emergency Contact Phone'),
+                ])->columns(3),
+                InfoSection::make('Professional Information')->schema([
+                    TextEntry::make('subjects')
+                        ->label('Subjects')
+                        ->getStateUsing(function (Model $teacher) {
+                            return $teacher->subjects->pluck('name')->join(', ');
+                        }),
+                    TextEntry::make('joining_date')->label('Joining Date')->date(),
+                    TextEntry::make('experience')->label('Experience (Years)'),
+                    TextEntry::make('employment_status')->label('Employment Status'),
+                    TextEntry::make('qualification_degree')->label('Degree Details')
+                        ->getStateUsing(function (Model $teacher) {
+                            return $teacher->qualification_degree ?  $teacher->qualification_degree : 'No Degree Details';
+                        }),
+                    TextEntry::make('responsibilities')->label('Responsibilities')
+                        ->getStateUsing(function (Model $teacher) {
+                            return $teacher->responsibilities ?  $teacher->responsibilities : 'No Responsibility Details';
+                        }),
 
-                TextEntry::make('is_active')->label('Is Active')
-                ->getStateUsing(function (Model $teacher)  { return $teacher->is_active ?  'Active' : 'Unactive'; } ),    
+                    TextEntry::make('is_active')->label('Is Active')
+                        ->getStateUsing(function (Model $teacher) {
+                            return $teacher->is_active ?  'Active' : 'Unactive';
+                        }),
 
-            ])->columns(3)
+                ])->columns(3)
 
-        ]);
+            ]);
     }
 
     public static function getRelations(): array

@@ -37,8 +37,8 @@ class Teacher extends Model
         'is_active' => 'boolean',
     ];
 
-    public function subject()
+    public function subjects()
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsToMany(Subject::class);
     }
 }
