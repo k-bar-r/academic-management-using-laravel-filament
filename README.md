@@ -1,3 +1,31 @@
+## for the installation
+# 1. Clone repository (jika belum)
+git clone <url_repository>
+cd nama-folder-proyek
+
+# 2. Install semua dependencies
+composer install
+npm install
+
+# 3. Siapkan file environment
+cp .env.example .env
+php artisan key:generate
+
+# 4. Buat database baru, lalu edit file .env sesuai konfigurasi database lokalmu
+
+# 5. Buat tabel di database
+php artisan migrate --seed
+
+# 5.2. Atau buat user baru
+php artisan make:filament-user
+
+# 6. Jalankan server
+php artisan serve
+
+
+
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
