@@ -1,26 +1,33 @@
 ## for the installation
-```bash
+
 1. Clone repository (jika belum)
+```bash
 git clone <url_repository>
 cd nama-folder-proyek
-
+```
 2. Install semua dependencies
+```bash
 composer install
 npm install
+```
 
 3. Siapkan file environment
+```bash
 cp .env.example .env
 php artisan key:generate
-
+```
 4. Buat database baru, lalu edit file .env sesuai konfigurasi database lokalmu
 
 5. Buat tabel di database
+```bash
 php artisan migrate --seed
-
+```
 5.2. Atau buat user baru
+```bash
 php artisan make:filament-user
-
+```
 6. Jalankan server
+```bash
 php artisan serve
 ```
 
