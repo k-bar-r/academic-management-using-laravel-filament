@@ -33,15 +33,17 @@ class Student extends Model
         'date_of_birth' => 'date',
     ];
 
-    public function class()
+    public function Class()
     {
-        return $this->belongsTo(Classes::class);
+        return $this->belongsTo(Classes::class, 'class_id');
     }
 
     public function getDistinctGradeLevels()
     {
         return Classes::select('class_id')->distinct()->get();
+        return Student::select('class_id')->distinct()->get();
     }
+
     public function marks()
     {
         return $this->hasMany(Mark::class);

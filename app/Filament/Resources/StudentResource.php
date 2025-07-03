@@ -88,8 +88,8 @@ class StudentResource extends Resource
                         ->label('Tingkat Kelas')
                         ->disabled()
                         ->dehydrated(true) // <--- Biar tetap ikut ke database meskipun disabled
-                        ->required()
-                        ->rule('integer|min:1|max:6'), 
+                        ->required(),
+                        // ->rule('integer|min:1|max:6'),
                     Forms\Components\DatePicker::make('admission_date')->label('Admission Date')->native(false)->default(today())
                         ->required(),
                     Forms\Components\Select::make('status')
@@ -118,13 +118,48 @@ class StudentResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('index')
+                    ->rowIndex(),
+                    Tables\Columns\TextColumn::make('first_name')->label('First Name')
+                        ->searchable(),
+                    Tables\Columns\TextColumn::make('last_name')->label('Last Name')
+                        ->searchable(),
+                    Tables\Columns\TextColumn::make('class.class_name') // Display class name
+                        ->label('Class'),
+                    Tables\Columns\TextColumn::make('grade_level'),
+                    Tables\Columns\TextColumn::make('admission_date')
+                        ->date(),
+                    Tables\Columns\TextColumn::make('status'),
+                    Tables\Columns\TextColumn::make('created_at')
+                        ->dateTime()
+                        ->sortable()
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('updated_at')
+                        ->dateTime()
+                        ->sortable()
+                        ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('Class')->multiple()->preload()
+                ->relationship('class', 'class_name'),
+                Filter::make('grade_level')
+                ->form([
+                    Select::make('grade_level')
+                    ->options(Classes::select('grade_level')->distinct()->get()->pluck('grade_level', 'grade_level'))
+                    ->native(false)->placeholder('All'),
+                 ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['grade_level'],
+                            fn (Builder $query, $data): Builder => $query->where('grade_level', '=', $data),
+                        );
+                        })
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -146,6 +181,47 @@ class StudentResource extends Resource
             'index' => Pages\ListStudents::route('/'),
             'create' => Pages\CreateStudent::route('/create'),
             'edit' => Pages\EditStudent::route('/{record}/edit'),
+
+            // Additional pages (optional)
+            // Pages\ViewStudentExams::route('/{record}/exams'),
+            // Pages\ViewStudentMarks::route('/{record}/marks'),
         ];
+    }
+    
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                InfoSection::make('Personal Details')->schema([
+                    TextEntry::make('first_name')->label('First Name'),
+                    TextEntry::make('last_name')->label('Last Name'),
+                    TextEntry::make('middle_name')->label('Middle Name'),
+                    TextEntry::make('date_of_birth')->label('Date of Birth')->date(),
+                    TextEntry::make('gender')->label('Gender'),
+                    TextEntry::make('address')->label('Address'),
+                    TextEntry::make('phone_number')->label('Phone Number'),
+                    TextEntry::make('email_address')->label('Email Address'),
+                ])->columns(3),
+    
+                InfoSection::make('Additional Information')->schema([
+                    TextEntry::make('class.class_name')->label('Class'),
+                    TextEntry::make('admission_date')->label('Admission Date')
+                        ->date(),
+                    TextEntry::make('status')->label('Status'),
+                    TextEntry::make('emergency_contact_name')->label('Emergency Contact Name')
+                    ->getStateUsing(function (Model $student) {
+                        return $student->emergency_contact_name ?? 'N/A';
+                    }),
+                TextEntry::make('emergency_contact_number')->label('Emergency Contact Number')
+                    ->getStateUsing(function (Model $student) {
+                        return $student->emergency_contact_number ?? 'N/A';
+                    }),
+                TextEntry::make('medical_conditions')->label('Medical Conditions')
+                    ->getStateUsing(function (Model $student) {
+                        return $student->medical_conditions ?? 'N/A';
+                    }),
+
+                ])->columns(3),
+            ]);
     }
 }

@@ -5,19 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Mark extends Model
+class ExamMap extends Model
 {
     use HasFactory;
 
+    protected $table = 'exam_group_map';
+
     protected $fillable = [
-        'student_id',
+        'exam_group_id',
         'exam_id',
-        'mark',
     ];
 
-    public function student()
+    /**
+     * Relationships
+     */
+    public function examGroup()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(ExamGroup::class);
     }
 
     public function exam()
